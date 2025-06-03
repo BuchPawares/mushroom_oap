@@ -44,7 +44,7 @@ def predict():
         predicted_class = class_names[predicted_index]
         confidence = tf.nn.softmax(predictions[0])[predicted_index].numpy()
         return jsonify({
-            'label': predicted_label,
+            'label': predicted_class,
             'confidence': round(confidence, 4)
         })
     except Exception as e:

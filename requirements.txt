@@ -1,0 +1,6 @@
+flask
+tensorflow
+pillow
+numpy
+gunicorn==23.0.0
+packaging==25.0

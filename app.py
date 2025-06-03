@@ -4,6 +4,7 @@ from tensorflow.keras.preprocessing import image
 import numpy as np
 from PIL import Image
 import os
+import io
 import gdown
 import json
 
@@ -30,7 +31,8 @@ def predict():
 
     try:
         file = request.files['file']
-        img = image.load_img(file.stream, target_size=(224, 224))
+        img_bytes = file.read()  # อ่านไฟล์จาก request
+        img = image.load_img(io.BytesIO(img_bytes), target_size=(224, 224))
         img_array = image.img_to_array(img)
         img_array = np.expand_dims(img_array, axis=0)
 

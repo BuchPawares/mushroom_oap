@@ -2,12 +2,21 @@ from flask import Flask, request, jsonify
 from tensorflow.keras.models import load_model
 import numpy as np
 from PIL import Image
+import os
+import gdown
 import json
 
 app = Flask(__name__)
+model_path = "mushroom_model1.h5"
+if not os.path.exists(model_path):
+    # Google Drive file ID
+    file_id = "18ggGp7TjmmzGUP9PDJvDQlZnh4DRxcb5"  # ← เปลี่ยนเป็น ID จริงจากลิงก์ GDrive
+    url = f"https://drive.google.com/uc?id={file_id}"
+    print("Downloading model...")
+    gdown.download(url, model_path, quiet=False)
 
-# โหลดโมเดล
-model = load_model("mushroom_model1.h5")
+# Load model
+model = load_model(model_path)
 
 # โหลดชื่อ class
 class_names = ["tyer1", "tyer2"] # เปลี่ยนตามโมเดลคุณ

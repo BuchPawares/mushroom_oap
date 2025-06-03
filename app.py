@@ -19,7 +19,8 @@ if not os.path.exists(model_path):
 model = load_model(model_path)
 
 # โหลดชื่อ class
-class_names = ["tyer1", "tyer2"] # เปลี่ยนตามโมเดลคุณ
+with open("class_names.json", "r") as f:
+    class_names = json.load(f)
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -28,16 +29,16 @@ def predict():
 
     try:
         file = request.files['file']
-        img = Image.open(file.stream).convert('RGB')
-        img = img.resize((224, 224))  # ปรับให้ตรงกับขนาด input ของโมเดล
-        img_array = np.array(img) / 255.0
+        img = image.load_img(file.stream, target_size=(224, 224))
+        img_array = image.img_to_array(img)
         img_array = np.expand_dims(img_array, axis=0)
 
-        prediction = model.predict(img_array)[0]
-        predicted_index = np.argmax(prediction)
-        predicted_label = class_names[predicted_index]
-        confidence = float(prediction[predicted_index])
-
+    # ไม่ต้องหาร 255 ถ้าในโมเดลมี Rescaling(1./255)
+        predictions = model.predict(img_array)
+    
+        predicted_index = np.argmax(predictions[0])
+        predicted_class = class_names[predicted_index]
+        confidence = tf.nn.softmax(predictions[0])[predicted_index].numpy()
         return jsonify({
             'label': predicted_label,
             'confidence': round(confidence, 4)

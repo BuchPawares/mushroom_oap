@@ -10,8 +10,7 @@ app = Flask(__name__)
 model = load_model("mushroom_model1.h5")
 
 # โหลดชื่อ class
-with open("class_names.json", "r") as f:
-    class_names = json.load(f)
+class_names = ["tyer1", "tyer2"] # เปลี่ยนตามโมเดลคุณ
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -20,15 +19,15 @@ def predict():
 
     try:
         file = request.files['file']
-        img = Image.open(file.stream).convert("RGB")
-        img = img.resize((224, 224))  # ปรับให้ตรงกับโมเดล
-        img_array = np.array(img)
+        img = Image.open(file.stream).convert('RGB')
+        img = img.resize((224, 224))  # ปรับให้ตรงกับขนาด input ของโมเดล
+        img_array = np.array(img) / 255.0
         img_array = np.expand_dims(img_array, axis=0)
 
         prediction = model.predict(img_array)[0]
         predicted_index = np.argmax(prediction)
         predicted_label = class_names[predicted_index]
-        confidence = float(tf.nn.softmax(prediction)[predicted_index])  # เพิ่ม softmax เผื่อ output ไม่ normalized
+        confidence = float(prediction[predicted_index])
 
         return jsonify({
             'label': predicted_label,
@@ -37,5 +36,6 @@ def predict():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+# สำหรับโฮสต์บน Render ต้องระบุ host และ port
 if __name__ == '__main__':
     app.run(debug=False, host='0.0.0.0', port=10000)
